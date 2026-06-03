@@ -1,0 +1,213 @@
+# AWS VPC and EC2 Public Web Server Lab
+
+## Project Overview
+
+This project demonstrates the creation of a custom AWS networking environment and deployment of a web server on an Amazon EC2 instance.
+
+The objective was to create a secure and accessible web server using a custom VPC, public subnet, Internet Gateway, Route Table, Security Group, Network ACL, and an Amazon Linux EC2 instance configured with both HTTP and HTTPS access.
+
+---
+
+## AWS Services Used
+
+* Amazon VPC
+* Subnets
+* Internet Gateway (IGW)
+* Route Tables
+* Network ACL (NACL)
+* Security Groups
+* Amazon EC2
+* Amazon Linux
+* Apache HTTP Server (httpd)
+
+---
+
+## Architecture
+
+```text
+Internet
+    │
+    ▼
+Internet Gateway (IGW)
+    │
+    ▼
+Route Table
+(0.0.0.0/0 → IGW)
+    │
+    ▼
+Public Subnet
+    │
+    ▼
+Network ACL
+(Allow 22, 80, 443)
+    │
+    ▼
+Security Group
+(Allow 22, 80, 443)
+    │
+    ▼
+Amazon Linux EC2
+    ├── HTTP (Port 80)
+    └── HTTPS (Port 443)
+```
+
+---
+
+## Implementation Steps
+
+### Step 1: Create a Custom VPC
+
+* Created a VPC with CIDR block:
+
+  * 10.0.0.0/16
+
+### Step 2: Create a Public Subnet
+
+* Created a public subnet within the VPC.
+* Associated the subnet with an Availability Zone.
+
+### Step 3: Create and Attach an Internet Gateway
+
+* Created an Internet Gateway.
+* Attached it to the custom VPC.
+
+### Step 4: Configure Route Table
+
+Added the following route:
+
+| Destination | Target           |
+| ----------- | ---------------- |
+| 0.0.0.0/0   | Internet Gateway |
+
+Associated the Route Table with the Public Subnet.
+
+### Step 5: Launch Amazon EC2 Instance
+
+* Selected Amazon Linux AMI.
+* Chose an appropriate instance type.
+* Enabled Public IP assignment.
+* Launched the instance in the Public Subnet.
+
+### Step 6: Configure Security Group
+
+Inbound Rules:
+
+| Type  | Port |
+| ----- | ---- |
+| SSH   | 22   |
+| HTTP  | 80   |
+| HTTPS | 443  |
+
+### Step 7: Configure Network ACL
+
+Inbound Rules:
+
+| Rule | Port | Action |
+| ---- | ---- | ------ |
+| 100  | 22   | Allow  |
+| 110  | 80   | Allow  |
+| 120  | 443  | Allow  |
+
+Outbound Rules:
+
+| Rule | Port        | Action |
+| ---- | ----------- | ------ |
+| 100  | All Traffic | Allow  |
+
+### Step 8: Install Apache Web Server
+
+```bash
+sudo yum update -y
+sudo yum install -y httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+```
+
+Create a sample webpage:
+
+```bash
+echo "Hello from AWS EC2" | sudo tee /var/www/html/index.html
+```
+
+### Step 9: Configure HTTPS
+
+Installed SSL module:
+
+```bash
+sudo yum install -y mod_ssl
+sudo systemctl restart httpd
+```
+
+Verified HTTPS access through Port 443.
+
+---
+
+## Verification
+
+### HTTP Access
+
+```text
+http://<EC2-Public-IP>
+```
+
+### HTTPS Access
+
+```text
+https://<EC2-Public-IP>
+```
+
+---
+
+## Troubleshooting Performed
+
+Initially, the EC2 instance was not accessible.
+
+The following components were verified:
+
+* Public IP Assignment
+* Internet Gateway Attachment
+* Route Table Configuration
+* Network ACL Rules
+* Security Group Rules
+* Apache Service Status
+* HTTPS Configuration
+
+After correcting the network configuration and enabling SSL, both HTTP and HTTPS connectivity were successfully established.
+
+---
+
+## Skills Demonstrated
+
+* AWS Networking
+* VPC Design
+* Subnet Configuration
+* Internet Gateway Configuration
+* Route Table Management
+* Security Group Management
+* Network ACL Configuration
+* EC2 Administration
+* Apache Web Server Deployment
+* HTTPS/SSL Configuration
+* AWS Troubleshooting
+
+---
+
+## Future Enhancements
+
+* Route 53 Domain Integration
+* AWS Certificate Manager (ACM)
+* Application Load Balancer (ALB)
+* Auto Scaling Group
+* Private Subnets
+* NAT Gateway
+* Terraform Automation
+* CI/CD Pipeline with Jenkins
+* Docker Containerization
+
+---
+
+## Author
+
+AWS Cloud & DevOps Practice Project
+
+Created as part of hands-on learning and interview preparation.
