@@ -1,0 +1,32 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EC2ViewStartStop",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*",
+        "ec2:StartInstances",
+        "ec2:StopInstances"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudWatchLogsView",
+      "Effect": "Allow",
+      "Action": [
+        "logs:Get*",
+        "logs:Describe*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyTerminate",
+      "Effect": "Deny",
+      "Action": [
+        "ec2:TerminateInstances"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
