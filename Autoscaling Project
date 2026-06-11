@@ -1,0 +1,324 @@
+# AWS Auto Scaling with Application Load Balancer Project
+
+## Project Overview
+
+Designed and implemented a highly available and scalable web application architecture on AWS using EC2, Application Load Balancer (ALB), Target Groups, Launch Templates, AMIs, and Auto Scaling Groups (ASG).
+
+The project demonstrates automatic scaling, load balancing, health checks, fault tolerance, and troubleshooting of common AWS infrastructure issues.
+
+---
+
+## Architecture
+
+Internet Users
+
+↓
+
+Application Load Balancer (ALB)
+
+↓
+
+Target Group
+
+↓
+
+Auto Scaling Group (ASG)
+
+↓
+
+EC2 Instance 1 (Apache Web Server)
+
+EC2 Instance 2 (Apache Web Server)
+
+---
+
+## AWS Services Used
+
+* Amazon EC2
+* Amazon Machine Image (AMI)
+* Launch Template
+* Application Load Balancer (ALB)
+* Target Group
+* Auto Scaling Group (ASG)
+* CloudWatch
+* Security Groups
+* VPC
+
+---
+
+## Implementation Steps
+
+### Step 1: Launch EC2 Instance
+
+* Created an Amazon Linux EC2 instance.
+* Configured Security Group to allow:
+
+  * SSH (22)
+  * HTTP (80)
+
+### Step 2: Install Apache Web Server
+
+Commands executed:
+
+sudo dnf update -y
+
+sudo dnf install httpd -y
+
+sudo systemctl start httpd
+
+sudo systemctl enable httpd
+
+Created a sample web page:
+
+echo "Autoscaling" | sudo tee /var/www/html/test.html
+
+Verified application:
+
+curl http://localhost/test.html
+
+Output:
+
+Autoscaling
+
+---
+
+### Step 3: Create Custom AMI
+
+Created an Amazon Machine Image (AMI) named:
+
+server2
+
+Purpose:
+
+* Preserve application configuration.
+* Use the AMI for launching identical instances through Auto Scaling.
+
+---
+
+### Step 4: Create Launch Template
+
+Launch Template Name:
+
+AutoScaling-LT
+
+Configuration:
+
+* AMI: server2
+* Instance Type: t2.micro
+* Security Group: Web Server Security Group
+* Key Pair: Existing SSH Key
+
+Purpose:
+
+* Standardized EC2 launch configuration for Auto Scaling.
+
+---
+
+### Step 5: Create Target Group
+
+Target Group Name:
+
+autoscaling-tg
+
+Configuration:
+
+* Target Type: Instance
+* Protocol: HTTP
+* Port: 80
+
+Health Check:
+
+Protocol: HTTP
+
+Path: /test.html
+
+Success Code: 200
+
+---
+
+### Step 6: Create Application Load Balancer
+
+Load Balancer Name:
+
+autoscaling-alb
+
+Configuration:
+
+* Internet-facing
+* HTTP Listener on Port 80
+* Associated with Target Group: autoscaling-tg
+
+Purpose:
+
+* Distribute incoming traffic across healthy EC2 instances.
+* Improve availability and fault tolerance.
+
+---
+
+### Step 7: Register Targets
+
+Registered EC2 instances into Target Group.
+
+Verified target health status:
+
+Healthy
+
+---
+
+### Step 8: Create Auto Scaling Group
+
+Auto Scaling Group Name:
+
+autoscaling-asg
+
+Configuration:
+
+Minimum Capacity: 2
+
+Desired Capacity: 2
+
+Maximum Capacity: 5
+
+Attached Target Group:
+
+autoscaling-tg
+
+Health Checks:
+
+* EC2
+* ELB
+
+Result:
+
+Two EC2 instances launched automatically and registered successfully.
+
+---
+
+### Step 9: Configure Auto Scaling Policy
+
+Policy Type:
+
+Target Tracking Scaling Policy
+
+Metric:
+
+Average CPU Utilization
+
+Target Value:
+
+60%
+
+Purpose:
+
+* Automatically launch additional instances when CPU utilization exceeds threshold.
+* Automatically terminate excess instances when traffic decreases.
+
+---
+
+## Challenges Faced and Troubleshooting
+
+### Issue 1: ALB DNS Not Working
+
+Problem:
+
+ALB DNS name was not accessible.
+
+Root Cause:
+
+No targets were registered in the Target Group.
+
+Resolution:
+
+Registered EC2 instances in the Target Group.
+
+---
+
+### Issue 2: Target Status Showing Unused
+
+Problem:
+
+Target appeared as Unused.
+
+Root Cause:
+
+Instance Availability Zone was not enabled in ALB configuration.
+
+Resolution:
+
+Enabled the correct subnet and Availability Zone in ALB network mapping.
+
+---
+
+### Issue 3: Target Health Check Failed (HTTP 403)
+
+Problem:
+
+Target became Unhealthy.
+
+Error:
+
+Health checks failed with codes [403].
+
+Root Cause:
+
+Health check path "/" returned HTTP 403 Forbidden.
+
+Resolution:
+
+Updated health check path to:
+
+/test.html
+
+Verified successful response:
+
+HTTP 200 OK
+
+Target became Healthy.
+
+---
+
+### Issue 4: Security Group Rule Error
+
+Error:
+
+"You may not specify an IPv4 CIDR for an existing referenced group id rule."
+
+Resolution:
+
+Deleted the existing rule and created a new inbound rule with the required CIDR range.
+
+---
+
+## Outcome
+
+Successfully implemented a highly available and scalable web application architecture using AWS Auto Scaling and Application Load Balancer.
+
+Achieved:
+
+* Automatic instance provisioning
+* Health-based traffic routing
+* High availability
+* Fault tolerance
+* Load distribution
+* Infrastructure scalability
+
+---
+
+## Skills Demonstrated
+
+* AWS EC2
+* Load Balancing
+* Auto Scaling
+* Linux Administration
+* Apache Web Server
+* Security Groups
+* Networking
+* Health Check Configuration
+* Troubleshooting
+* Cloud Infrastructure Design
+
+---
+
+## Resume Description
+
+Implemented an AWS Auto Scaling solution using EC2, AMI, Launch Templates, Application Load Balancer, Target Groups, and Auto Scaling Groups. Configured health checks, load balancing, and automatic scaling based on CPU utilization. Troubleshot target registration, Availability Zone mapping, and HTTP health check failures to ensure high availability and fault tolerance.
